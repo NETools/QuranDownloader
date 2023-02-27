@@ -229,7 +229,7 @@ List<HtmlNode> CollectMaximumDepth(HtmlNode node, string type)
         }
         else if (current.Children.Count == 0)
         {
-            if (current.Type.Equals(type))
+            if (current.Type != null && current.Type.Equals(type))
                 nodeCollector.Add(current);
             current = nodeStack.Peek().Node;
             depth--;
@@ -263,7 +263,7 @@ HtmlNode Html2DOM(IEnumerable<Token> tokens)
                 var endingTag = nodeStack.Pop();
                 List<HtmlNode> nodeAccumulator = new List<HtmlNode>();
 
-                while (!endingTag.Type.Equals(endingType))
+                while (endingTag.Type != null && !endingTag.Type.Equals(endingType))
                 {
                     nodeAccumulator.Add(endingTag);
                     endingTag = nodeStack.Pop();
@@ -313,13 +313,14 @@ class HtmlNode
 
     public List<HtmlNode> Children { get; private set; } = new List<HtmlNode>();
 
-    public string Type { get; private set; }
+    public string? Type { get; private set; }
     public string Attribute => _attributeBuilder.ToString();
     public string Content => _contentBuilder.ToString();
 
     public void PutAttribute(string? data)
     {
-        string[] args = data?.Split(' ');
+        string[]? args = data?.Split(' ');
+        if (args == null) return;
         Type = args[0];
 
         _attributeBuilder.Append(string.Join(' ', args.Skip(1)));
